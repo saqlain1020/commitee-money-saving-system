@@ -23,18 +23,19 @@ async function main() {
 
   await contract.deployTransaction.wait();
 
-  await verifyContract(contract.address, []);
+  // TODO: fix for local deployment
+  // await verifyContract(contract.address, []);
 
-  // try {
-  //   await hre.run("verify:verify", {
-  //     address: contract.address,
-  //     constructorArguments: []
-  //   })
+  try {
+    await hre.run("verify:verify", {
+      address: contract.address,
+      constructorArguments: []
+    })
 
-  //   console.log("Verifying done.");
-  // } catch (error) {
-  //   console.log("Verifying error.");
-  // }
+    console.log("Verifying done.");
+  } catch (error) {
+    console.log("Verifying error.");
+  }
 
   // await greeter.setGreeting("Hola Mundo!");
 
