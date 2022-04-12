@@ -44,7 +44,7 @@ export interface CommiteeMoneyInterface extends utils.Interface {
     "lastCommiteeOpenDate()": FunctionFragment;
     "openCommitee()": FunctionFragment;
     "owner()": FunctionFragment;
-    "receivePayment()": FunctionFragment;
+    "payCommitee()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAllowedParticipants(uint256)": FunctionFragment;
     "setCommiteeReward(uint256)": FunctionFragment;
@@ -71,7 +71,7 @@ export interface CommiteeMoneyInterface extends utils.Interface {
       | "lastCommiteeOpenDate"
       | "openCommitee"
       | "owner"
-      | "receivePayment"
+      | "payCommitee"
       | "renounceOwnership"
       | "setAllowedParticipants"
       | "setCommiteeReward"
@@ -130,7 +130,7 @@ export interface CommiteeMoneyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "receivePayment",
+    functionFragment: "payCommitee",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -211,7 +211,7 @@ export interface CommiteeMoneyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "receivePayment",
+    functionFragment: "payCommitee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -365,7 +365,7 @@ export interface CommiteeMoney extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    receivePayment(
+    payCommitee(
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -445,7 +445,7 @@ export interface CommiteeMoney extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  receivePayment(
+  payCommitee(
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -519,7 +519,7 @@ export interface CommiteeMoney extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    receivePayment(overrides?: CallOverrides): Promise<void>;
+    payCommitee(overrides?: CallOverrides): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -629,7 +629,7 @@ export interface CommiteeMoney extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    receivePayment(
+    payCommitee(
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -720,7 +720,7 @@ export interface CommiteeMoney extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    receivePayment(
+    payCommitee(
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

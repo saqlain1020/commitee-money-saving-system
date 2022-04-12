@@ -3,7 +3,7 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-const hre = require("hardhat");
+import hre from "hardhat";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -23,40 +23,48 @@ async function main() {
 
   await contract.deployTransaction.wait();
 
-  // TODO: fix for local deployment
-  // await verifyContract(contract.address, []);
+  hre.network.name === "hardhat" ? console.log("Skipping verify") : await verifyContract(contract.address, []);
+  // // ;
+  // try {
+  //   await hre.run("verify:verify", {
+  //     address: contract.address,
+  //     constructorArguments: [],
+  //   });
 
-  try {
-    await hre.run("verify:verify", {
-      address: contract.address,
-      constructorArguments: []
-    })
-
-    console.log("Verifying done.");
-  } catch (error) {
-    console.log("Verifying error.");
-  }
-
-  // await greeter.setGreeting("Hola Mundo!");
-
+  //   console.log("Verifying done.");
+  // } catch (error: any) {
+  //   // console.log(error)
+  //   console.log(Object.entries(error));
+  //   console.log("Verifying error.");
+  // }
 }
 
-const verifyContract = (contractAddress, constructorArguments) => new Promise(async (res) => {
-  console.log("Verifying Contract");
-  let int = setInterval(async () => {
-    try {
-      await hre.run("verify:verify", {
-        address: contractAddress,
-        constructorArguments,
-      })
-      clearInterval(int);
-      console.log("Verify Success");
-      res();
-    } catch (error) {
-      console.log("Verify Error, trying again...");
-    }
-  }, 8000)
-})
+const verifyContract = (contractAddress: string, constructorArguments: string[], intervalSec: number = 10) =>
+  new Promise<void>(async (res, rej) => {
+    (async function verify() {
+      try {
+        console.log("Verifying Contract");
+        await hre.run("verify:verify", {
+          address: contractAddress,
+          constructorArguments,
+        });
+        console.log("Verify Success");
+        res();
+      } catch (error) {
+        console.log("Verify Error");
+        let timer = intervalSec;
+        let int = setInterval(() => {
+          console.log("Trying again in " + timer);
+          timer--;
+          if (timer === 0) {
+            clearInterval(int);
+            verify();
+          }
+        }, 1000);
+      }
+    })();
+    setTimeout(rej, 1000 * 60);
+  });
 
 // async function getGasEstimate(contractInstance, methodName, ...args) {
 //   let gasPriceBigNumberWei = await hre.ethers.provider.getGasPrice();

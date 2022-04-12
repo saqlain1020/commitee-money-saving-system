@@ -65,11 +65,10 @@ contract CommiteeMoney is Ownable {
     }
 
     // receive monetary payment from member
-    function receivePayment() external payable {
+    function payCommitee() external payable {
         // if user paid then leave;
         // require(lastCommiteeOpenDate > 0, "Commitee not started");
         require(!hasPaid(msg.sender), "You already paid");
-        console.log("amountsent", msg.value);
         require(msg.value >= fixedDepositAmount, "Payment is not enough");
         if (isUserInCommitee(msg.sender)) {
             _userPaymentReceived(msg.sender, msg.value);

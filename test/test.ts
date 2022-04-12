@@ -13,8 +13,8 @@ describe("Greeter", function () {
     // console.log("Fixed amount after", ethers.utils.formatEther(await contract.fixedDepositAmount()));
     // await contract.startCommitee();
     console.log("Acc balance", ethers.utils.formatEther(await owner.getBalance()));
-    await contract.receivePayment({ value: ethers.utils.parseEther("1") });
-    await contract.connect(add1).receivePayment({ value: ethers.utils.parseEther("1") });
+    await contract.payCommitee({ value: ethers.utils.parseEther("1") });
+    await contract.connect(add1).payCommitee({ value: ethers.utils.parseEther("1") });
     console.log("Acc balance after", ethers.utils.formatEther(await owner.getBalance()));
     // console.log("Contract balance", ethers.utils.formatEther(await contract.balanceOf()));
     // console.log("Not won members", await contract.hasEveryonePaid());
