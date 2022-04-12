@@ -30,11 +30,13 @@ import type {
 export interface CommiteeMoneyInterface extends utils.Interface {
   functions: {
     "balanceOf()": FunctionFragment;
-    "clearCommitee()": FunctionFragment;
+    "commiteeEnabled()": FunctionFragment;
     "commiteeMembers(uint256)": FunctionFragment;
     "commiteeReward()": FunctionFragment;
     "commiteeWinners(uint256)": FunctionFragment;
     "destroyContract()": FunctionFragment;
+    "disableCommitee()": FunctionFragment;
+    "enableCommitee()": FunctionFragment;
     "fixedDepositAmount()": FunctionFragment;
     "getNotWonMembers()": FunctionFragment;
     "hasEveryonePaid()": FunctionFragment;
@@ -49,7 +51,6 @@ export interface CommiteeMoneyInterface extends utils.Interface {
     "setAllowedParticipants(uint256)": FunctionFragment;
     "setCommiteeReward(uint256)": FunctionFragment;
     "setFixedDepositAmount(uint256)": FunctionFragment;
-    "startCommitee()": FunctionFragment;
     "totalAllowedParticipants()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -57,11 +58,13 @@ export interface CommiteeMoneyInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "balanceOf"
-      | "clearCommitee"
+      | "commiteeEnabled"
       | "commiteeMembers"
       | "commiteeReward"
       | "commiteeWinners"
       | "destroyContract"
+      | "disableCommitee"
+      | "enableCommitee"
       | "fixedDepositAmount"
       | "getNotWonMembers"
       | "hasEveryonePaid"
@@ -76,14 +79,13 @@ export interface CommiteeMoneyInterface extends utils.Interface {
       | "setAllowedParticipants"
       | "setCommiteeReward"
       | "setFixedDepositAmount"
-      | "startCommitee"
       | "totalAllowedParticipants"
       | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "balanceOf", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "clearCommitee",
+    functionFragment: "commiteeEnabled",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -100,6 +102,14 @@ export interface CommiteeMoneyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "destroyContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "disableCommitee",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enableCommitee",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -150,10 +160,6 @@ export interface CommiteeMoneyInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "startCommitee",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "totalAllowedParticipants",
     values?: undefined
   ): string;
@@ -164,7 +170,7 @@ export interface CommiteeMoneyInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "clearCommitee",
+    functionFragment: "commiteeEnabled",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -181,6 +187,14 @@ export interface CommiteeMoneyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "destroyContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "disableCommitee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enableCommitee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -231,10 +245,6 @@ export interface CommiteeMoneyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "startCommitee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "totalAllowedParticipants",
     data: BytesLike
   ): Result;
@@ -244,15 +254,29 @@ export interface CommiteeMoneyInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "CommiteeClosed(uint256,address[],uint256)": EventFragment;
     "OpenCommitee(address,uint256,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PaymentReceived(address,uint256,uint256,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "CommiteeClosed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OpenCommitee"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PaymentReceived"): EventFragment;
 }
+
+export interface CommiteeClosedEventObject {
+  date: BigNumber;
+  members: string[];
+  totalWinnings: BigNumber;
+}
+export type CommiteeClosedEvent = TypedEvent<
+  [BigNumber, string[], BigNumber],
+  CommiteeClosedEventObject
+>;
+
+export type CommiteeClosedEventFilter = TypedEventFilter<CommiteeClosedEvent>;
 
 export interface OpenCommiteeEventObject {
   winner: string;
@@ -320,9 +344,7 @@ export interface CommiteeMoney extends BaseContract {
   functions: {
     balanceOf(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    clearCommitee(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    commiteeEnabled(overrides?: CallOverrides): Promise<[boolean]>;
 
     commiteeMembers(
       arg0: BigNumberish,
@@ -337,6 +359,14 @@ export interface CommiteeMoney extends BaseContract {
     ): Promise<[string]>;
 
     destroyContract(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    disableCommitee(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    enableCommitee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -388,10 +418,6 @@ export interface CommiteeMoney extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    startCommitee(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     totalAllowedParticipants(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferOwnership(
@@ -402,9 +428,7 @@ export interface CommiteeMoney extends BaseContract {
 
   balanceOf(overrides?: CallOverrides): Promise<BigNumber>;
 
-  clearCommitee(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  commiteeEnabled(overrides?: CallOverrides): Promise<boolean>;
 
   commiteeMembers(
     arg0: BigNumberish,
@@ -419,6 +443,14 @@ export interface CommiteeMoney extends BaseContract {
   ): Promise<string>;
 
   destroyContract(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  disableCommitee(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  enableCommitee(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -468,10 +500,6 @@ export interface CommiteeMoney extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  startCommitee(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   totalAllowedParticipants(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferOwnership(
@@ -482,7 +510,7 @@ export interface CommiteeMoney extends BaseContract {
   callStatic: {
     balanceOf(overrides?: CallOverrides): Promise<BigNumber>;
 
-    clearCommitee(overrides?: CallOverrides): Promise<void>;
+    commiteeEnabled(overrides?: CallOverrides): Promise<boolean>;
 
     commiteeMembers(
       arg0: BigNumberish,
@@ -497,6 +525,10 @@ export interface CommiteeMoney extends BaseContract {
     ): Promise<string>;
 
     destroyContract(overrides?: CallOverrides): Promise<void>;
+
+    disableCommitee(overrides?: CallOverrides): Promise<void>;
+
+    enableCommitee(overrides?: CallOverrides): Promise<void>;
 
     fixedDepositAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -515,7 +547,7 @@ export interface CommiteeMoney extends BaseContract {
 
     lastCommiteeOpenDate(overrides?: CallOverrides): Promise<BigNumber>;
 
-    openCommitee(overrides?: CallOverrides): Promise<[string, boolean]>;
+    openCommitee(overrides?: CallOverrides): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -538,8 +570,6 @@ export interface CommiteeMoney extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    startCommitee(overrides?: CallOverrides): Promise<void>;
-
     totalAllowedParticipants(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
@@ -549,6 +579,17 @@ export interface CommiteeMoney extends BaseContract {
   };
 
   filters: {
+    "CommiteeClosed(uint256,address[],uint256)"(
+      date?: BigNumberish | null,
+      members?: null,
+      totalWinnings?: null
+    ): CommiteeClosedEventFilter;
+    CommiteeClosed(
+      date?: BigNumberish | null,
+      members?: null,
+      totalWinnings?: null
+    ): CommiteeClosedEventFilter;
+
     "OpenCommitee(address,uint256,uint256)"(
       winner?: string | null,
       amount?: null,
@@ -586,9 +627,7 @@ export interface CommiteeMoney extends BaseContract {
   estimateGas: {
     balanceOf(overrides?: CallOverrides): Promise<BigNumber>;
 
-    clearCommitee(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    commiteeEnabled(overrides?: CallOverrides): Promise<BigNumber>;
 
     commiteeMembers(
       arg0: BigNumberish,
@@ -603,6 +642,14 @@ export interface CommiteeMoney extends BaseContract {
     ): Promise<BigNumber>;
 
     destroyContract(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    disableCommitee(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    enableCommitee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -652,10 +699,6 @@ export interface CommiteeMoney extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    startCommitee(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     totalAllowedParticipants(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
@@ -667,9 +710,7 @@ export interface CommiteeMoney extends BaseContract {
   populateTransaction: {
     balanceOf(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    clearCommitee(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    commiteeEnabled(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     commiteeMembers(
       arg0: BigNumberish,
@@ -684,6 +725,14 @@ export interface CommiteeMoney extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     destroyContract(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    disableCommitee(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    enableCommitee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -740,10 +789,6 @@ export interface CommiteeMoney extends BaseContract {
 
     setFixedDepositAmount(
       _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    startCommitee(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

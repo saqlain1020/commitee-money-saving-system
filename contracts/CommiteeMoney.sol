@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
@@ -12,6 +12,7 @@ contract CommiteeMoney is Ownable {
     address[] public commiteeMembers;
     mapping(address => uint256) memberToLastpayment;
     address[] public commiteeWinners;
+    bool public commiteeEnabled = false;
     event OpenCommitee(address indexed winner, uint256 amount, uint256 date);
     event PaymentReceived(
         address indexed from,
@@ -19,15 +20,14 @@ contract CommiteeMoney is Ownable {
         uint256 refunded,
         uint256 date
     );
-
-    // Start comite by owner
-    function startCommitee() external onlyOwner {
-        require(commiteeMembers.length == 0, "Commitee already started");
-        lastCommiteeOpenDate = block.timestamp;
-    }
+    event CommiteeClosed(
+        uint256 indexed date,
+        address[] members,
+        uint256 totalWinnings
+    );
 
     // open comitee by owner using random hash
-    function openCommitee() external onlyOwner returns (address, bool) {
+    function openCommitee() external onlyOwner {
         require(
             commiteeMembers.length == totalAllowedParticipants,
             "Participants not enough"
@@ -50,24 +50,27 @@ contract CommiteeMoney is Ownable {
         memberToLastpayment[randomAddress] = block.timestamp;
         // update last payment date
         if (commiteeWinners.length == totalAllowedParticipants) {
-            clearCommitee();
-            return (randomAddress, true);
+            _clearCommitee();
         }
         lastCommiteeOpenDate = block.timestamp;
-        return (randomAddress, false);
     }
 
-    // Clear Commitee
-    function clearCommitee() public onlyOwner {
+    // close comitee when everyone has been paid
+    function _clearCommitee() private onlyOwner {
+        emit CommiteeClosed(
+            block.timestamp,
+            commiteeMembers,
+            commiteeReward * totalAllowedParticipants
+        );
+        disableCommitee();
         commiteeMembers = new address[](0);
         commiteeWinners = new address[](0);
         lastCommiteeOpenDate = block.timestamp;
     }
 
-    // receive monetary payment from member
+    // receive commitee payment from member
     function payCommitee() external payable {
-        // if user paid then leave;
-        // require(lastCommiteeOpenDate > 0, "Commitee not started");
+        require(commiteeEnabled, "Commitee Disabled...");
         require(!hasPaid(msg.sender), "You already paid");
         require(msg.value >= fixedDepositAmount, "Payment is not enough");
         if (isUserInCommitee(msg.sender)) {
@@ -100,10 +103,12 @@ contract CommiteeMoney is Ownable {
         memberToLastpayment[msg.sender] = block.timestamp;
     }
 
+    // Check if user has paid current commitee period
     function hasPaid(address _member) public view returns (bool) {
         return memberToLastpayment[_member] > lastCommiteeOpenDate;
     }
 
+    // Check if user is in commitee
     function isUserInCommitee(address _member) public view returns (bool) {
         for (uint256 i = 0; i < commiteeMembers.length; i++) {
             if (commiteeMembers[i] == _member) {
@@ -113,6 +118,7 @@ contract CommiteeMoney is Ownable {
         return false;
     }
 
+    // Check if everyone has paid
     function hasEveryonePaid() public view returns (bool) {
         for (uint256 i = 0; i < commiteeMembers.length; i++) {
             if (!hasPaid(commiteeMembers[i])) {
@@ -122,6 +128,7 @@ contract CommiteeMoney is Ownable {
         return true;
     }
 
+    // Get not won members
     function getNotWonMembers()
         public
         view
@@ -140,6 +147,7 @@ contract CommiteeMoney is Ownable {
         return notWonMembers;
     }
 
+    // Check if user has won
     function hasWon(address _member) public view returns (bool) {
         for (uint256 i = 0; i < commiteeWinners.length; i++) {
             if (commiteeWinners[i] == _member) {
@@ -149,23 +157,52 @@ contract CommiteeMoney is Ownable {
         return false;
     }
 
+    // Get current balance of contract
     function balanceOf() public view returns (uint256) {
         return address(this).balance;
     }
 
-    function setFixedDepositAmount(uint256 _amount) external onlyOwner {
+    // set amount a commitee member will pay
+    function setFixedDepositAmount(uint256 _amount)
+        external
+        onlyOwner
+        canModifyCommitee
+    {
         fixedDepositAmount = _amount;
     }
 
-    function setCommiteeReward(uint256 _amount) external onlyOwner {
+    // Set commitee opening reward
+    function setCommiteeReward(uint256 _amount)
+        external
+        onlyOwner
+        canModifyCommitee
+    {
         commiteeReward = _amount;
     }
 
-    function setAllowedParticipants(uint256 _amount) external onlyOwner {
+    // Set total allowed participants
+    function setAllowedParticipants(uint256 _amount)
+        external
+        onlyOwner
+        canModifyCommitee
+    {
         totalAllowedParticipants = _amount;
     }
 
     function destroyContract() external onlyOwner {
         selfdestruct(payable(msg.sender));
+    }
+
+    function enableCommitee() external onlyOwner {
+        commiteeEnabled = true;
+    }
+
+    function disableCommitee() public onlyOwner canModifyCommitee {
+        commiteeEnabled = false;
+    }
+
+    modifier canModifyCommitee() {
+        require(commiteeMembers.length == 0, "Can't modify commitee now.");
+        _;
     }
 }

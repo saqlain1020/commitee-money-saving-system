@@ -22,7 +22,7 @@ async function main() {
 }
 
 function verifyContract(contractAddress: string, constructorArguments: string[], intervalSec: number = 10) {
-  new Promise<void>(async (res, rej) => {
+  return new Promise<void>(async (res, rej) => {
     (async function verify() {
       try {
         console.log("Verifying Contract");
@@ -44,8 +44,8 @@ function verifyContract(contractAddress: string, constructorArguments: string[],
           }
         }, 1000);
       }
-    })();
-    setTimeout(rej, 1000 * 60);
+    })()
+    setTimeout(rej, 1000 * 60 * 5); // 5 minutes timeout
   });
 }
 
