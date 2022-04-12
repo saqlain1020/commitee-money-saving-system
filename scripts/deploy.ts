@@ -1,8 +1,3 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 import hre from "hardhat";
 
 async function main() {
@@ -24,22 +19,9 @@ async function main() {
   await contract.deployTransaction.wait();
 
   hre.network.name === "hardhat" ? console.log("Skipping verify") : await verifyContract(contract.address, []);
-  // // ;
-  // try {
-  //   await hre.run("verify:verify", {
-  //     address: contract.address,
-  //     constructorArguments: [],
-  //   });
-
-  //   console.log("Verifying done.");
-  // } catch (error: any) {
-  //   // console.log(error)
-  //   console.log(Object.entries(error));
-  //   console.log("Verifying error.");
-  // }
 }
 
-const verifyContract = (contractAddress: string, constructorArguments: string[], intervalSec: number = 10) =>
+function verifyContract(contractAddress: string, constructorArguments: string[], intervalSec: number = 10) {
   new Promise<void>(async (res, rej) => {
     (async function verify() {
       try {
@@ -65,6 +47,7 @@ const verifyContract = (contractAddress: string, constructorArguments: string[],
     })();
     setTimeout(rej, 1000 * 60);
   });
+}
 
 // async function getGasEstimate(contractInstance, methodName, ...args) {
 //   let gasPriceBigNumberWei = await hre.ethers.provider.getGasPrice();
@@ -75,23 +58,6 @@ const verifyContract = (contractAddress: string, constructorArguments: string[],
 //   // gwei to eth
 //   estimate = estimate / 1000000000;
 //   console.log("Estimated gas eth:", estimate);
-// }
-
-// async function verify(){
-//   return new Promise(async (resolve, reject) => {
-//     await verifying
-//   })
-// }
-
-// async function verifying(){
-//   try {
-//     await hre.run("verify:verify", {
-//       address: greeter.address,
-//       constructorArguments: ["Hello World!"]
-//     })
-//   } catch (error) {
-//     await verifying()
-//   }
 // }
 
 // We recommend this pattern to be able to use async/await everywhere
